@@ -24,24 +24,24 @@ The simplest way is to iterate through each index and set the value.
 
 ```go
 func FillSliceIndex(slice []byte, value byte) {
-    for j := 0; j < len(slice); j++ {
-        slice[j] = value
-    }
+for j := 0; j < len(slice); j++ {
+slice[j] = value
+}
 }
 
 func Benchmark_FillsliceIndex(b *testing.B) {
-    slice := make([]byte, 73437)
-    for i := 0; i < b.N; i++ {
-        FillSliceIndex(slice, 65)
-    }
+slice := make([]byte, 73437)
+for i := 0; i < b.N; i++ {
+FillSliceIndex(slice, 65)
+}
 }
 ```
 
 **Benchmark Results:**
 
-| Name | Executions | Time/Op | Bytes/Op | Allocs/Op |
-|------|------------|---------|----------|-----------|
-| Benchmark_FillsliceIndex-4 | 48,555 | 23,044 ns/op | 0 B/op | 0 allocs/op |
+| Name                        | Executions | Time/Op      | Bytes/Op | Allocs/Op   |
+| --------------------------- | ---------- | ------------ | -------- | ----------- |
+| Benchmark\_FillsliceIndex-10 | 48,733     | 22,896 ns/op | 0 B/op   | 0 allocs/op |
 
 This approach is straightforward but relatively slow due to the per-element indexing and bounds checking.
 
@@ -68,9 +68,9 @@ func Benchmark_FillsliceRange(b *testing.B) {
 
 **Benchmark Results:**
 
-| Name | Executions | Time/Op | Bytes/Op | Allocs/Op |
-|------|------------|---------|----------|-----------|
-| Benchmark_FillsliceRange-4 | 48,687 | 22,890 ns/op | 0 B/op | 0 allocs/op |
+| Name                        | Executions | Time/Op      | Bytes/Op | Allocs/Op   |
+| --------------------------- | ---------- | ------------ | -------- | ----------- |
+| Benchmark\_FillsliceRange-10 | 52,455     | 22,988 ns/op | 0 B/op   | 0 allocs/op |
 
 This is faster than the index-based approach but still not optimal.
 
@@ -98,9 +98,9 @@ func Benchmark_FillsliceCopyTrick(b *testing.B) {
 
 **Benchmark Results:**
 
-| Name | Executions | Time/Op | Bytes/Op | Allocs/Op |
-|------|------------|---------|----------|-----------|
-| Benchmark_FillsliceCopyTrick-4 | 1,259,342 | 1,025 ns/op | 0 B/op | 0 allocs/op |
+| Name                            | Executions | Time/Op     | Bytes/Op | Allocs/Op   |
+| ------------------------------- | ---------- | ----------- | -------- | ----------- |
+| Benchmark\_FillsliceCopyTrick-10 | 1,286,061    | 945.0 ns/op | 0 B/op   | 0 allocs/op |
 
 The improvement here is dramatic—about 30x faster than the basic loop!
 
@@ -129,20 +129,20 @@ func Benchmark_FillslicePatternCopyTrick(b *testing.B) {
 
 **Benchmark Results:**
 
-| Name | Executions | Time/Op | Bytes/Op | Allocs/Op |
-|------|------------|---------|----------|-----------|
-| Benchmark_FillslicePatternCopyTrick-4 | 1,271,686 | 926.3 ns/op | 0 B/op | 0 allocs/op |
+| Name                                   | Executions | Time/Op     | Bytes/Op | Allocs/Op   |
+| -------------------------------------- | ---------- | ----------- | -------- | ----------- |
+| Benchmark\_FillslicePatternCopyTrick-10 | 1,293,369    | 928.9 ns/op | 0 B/op   | 0 allocs/op |
 
 ---
 
 ## Summary of Benchmark Results
 
-| Name | Executions | Time/Op | Bytes/Op | Allocs/Op |
-|------|------------|---------|----------|-----------|
-| Benchmark_FillsliceIndex-10 | 48,555 | 23,044 ns/op | 0 B/op | 0 allocs/op |
-| Benchmark_FillsliceRange-10 | 48,687 | 22,890 ns/op | 0 B/op | 0 allocs/op |
-| Benchmark_FillsliceCopyTrick-10 | 1,259,342 | 1,025 ns/op | 0 B/op | 0 allocs/op |
-| Benchmark_FillslicePatternCopyTrick-10 | 1,271,686 | 926.3 ns/op | 0 B/op | 0 allocs/op |
+| Name                                   | Executions | Time/Op      | Bytes/Op | Allocs/Op   |
+| -------------------------------------- | ---------- | ------------ | -------- | ----------- |
+| Benchmark\_FillsliceIndex-10            | 48,733     | 22,896 ns/op | 0 B/op   | 0 allocs/op |
+| Benchmark\_FillsliceRange-10            | 52,455     | 22,988 ns/op | 0 B/op   | 0 allocs/op |
+| Benchmark\_FillsliceCopyTrick-10        | 1,286,061    | 945.0 ns/op  | 0 B/op   | 0 allocs/op |
+| Benchmark\_FillslicePatternCopyTrick-10 | 1,29,3369    | 928.9 ns/op  | 0 B/op   | 0 allocs/op |
 
 ---
 
@@ -155,15 +155,11 @@ The `copy` function avoids the overhead of indexing and bounds checking each ele
 - This exponential growth reduces the number of copy operations required, amortizing the cost.
 - The final copy naturally stops when the slice is filled—no bounds checks are needed.
 
-Here’s a visual breakdown:
+---
 
-| Current Data | Action | New Data |
-|--------------|--------|----------|
-| ['A'] | Copy index 0 to 1 | ['A', 'A'] |
-| ['A', 'A'] | Copy first 2 elements to index 2 | ['A', 'A', 'A', 'A'] |
-| ['A', 'A', 'A', 'A'] | Copy first 4 elements to index 4 | ['A', 'A', 'A', 'A', 'A', 'A', 'A', 'A'] |
+## Reference
 
-Each iteration doubles the amount of work carried out per call to `copy`, leading to a very efficient fill operation.
+For the complete source code and more details, check out the GitHub repository: [sliceFillExample](https://github.com/Vishalj32/sliceFillExample.git)
 
 ---
 
@@ -174,4 +170,3 @@ If you ever need to efficiently fill a slice or array in Go, especially for larg
 I hope this guide helps you optimize your Go code and improve your application’s performance. Let me know if you discover any other cool slice-filling techniques!
 
 Happy coding! 🚀
-
